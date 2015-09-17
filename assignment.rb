@@ -1,4 +1,11 @@
 class Assignment < ActiveRecord::Base
+  validates :course_id, presence: true
+  validates :percent_of_grade, presence: true
+  validates :name,  presence: true,
+                    uniqueness: {
+                      scope: :course_id,
+                      message: "Duplicate assignment name within its course_id"
+                      }
 
   scope :active_for_students, -> { where("active_at <= ? AND due_at >= ? AND students_can_submit = ?", Time.now, Time.now, true) }
 

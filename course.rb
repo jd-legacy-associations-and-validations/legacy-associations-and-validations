@@ -1,4 +1,8 @@
 class Course < ActiveRecord::Base
+  has_many :lessons, dependents: destroy
+  has_many :course_students, dependents: restrict_with_error
+  has_many :readings, through: :lessons
+  has_and_belongs_to_many :course_instructors, dependents:
 
   default_scope { order("courses.term_id DESC, courses.course_code, courses.id DESC") }
 
