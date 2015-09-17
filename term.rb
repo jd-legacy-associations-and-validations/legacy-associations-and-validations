@@ -1,4 +1,5 @@
 class Term < ActiveRecord::Base
+  
 
   default_scope { order('ends_on DESC') }
 

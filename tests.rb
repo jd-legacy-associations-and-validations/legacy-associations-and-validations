@@ -21,6 +21,12 @@ ApplicationMigration.migrate(:up)
 # Finally!  Let's test the thing.
 class ApplicationTest < Minitest::Test
 
+  # def test_01_associate_terms_and_schools
+  #   s1 = School.create("Skool")
+  #   t1 = Term.create("Tirm")
+  #   t.school_id = s.id
+  # end
+
   def test_truth
     assert true
   end
