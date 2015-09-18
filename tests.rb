@@ -49,9 +49,15 @@ class ApplicationTest < Minitest::Test
     t1 = Term.create(name: "T3")
     c1 = Course.create(name: "C1")
     t1.courses << c1
-    #assert t1.reload.courses.include?(c1)
+    assert c1.reload.term == t1
   end
 
+  def test_03_associate_students_and_courses
+    c1 = Course.create(name: "C1")
+    student1 = CourseStudent.create(student_id: 1)
+    c1.course_students << student1
+    assert student1.reload.course == c1
+  end
 
   def test_truth
     assert true
