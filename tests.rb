@@ -15,6 +15,10 @@ ActiveRecord::Base.establish_connection(
 
 # Gotta run migrations before we can run tests.  Down will fail the first time,
 # so we wrap it in a begin/rescue.
+
+ActiveRecord::Migration.verbose = false
+ActiveSupport::TestCase.test_order = :random
+
 begin ApplicationMigration.migrate(:down); rescue; end
 ApplicationMigration.migrate(:up)
 
@@ -48,6 +52,7 @@ class ApplicationTest < ActiveSupport::TestCase
     c1 = Course.create(name: "C1")
     t1.courses << c1
     assert c1.reload.term == t1
+    assert t1.courses.include?(c1)
   end
 
   def test_03_associate_students_and_courses
@@ -76,11 +81,9 @@ class ApplicationTest < ActiveSupport::TestCase
   def test_05_associate_lessons_and_preclass_assignments
     l1 = Lesson.create(name: "L1")
     a1 = Assignment.create(name: "A1")
-    #assignment has many lessons
-    #lesson belongs to assignments
     a1.lessons << l1
+    assert a1.lessons.include?(l1)
     assert l1.pre_class_assignment_id == a1.id
-    #assert_equal l1.pre_class_assignment_id, a1.id
   end
 
 # def test_06_
@@ -116,16 +119,15 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   def test_07_validate_readings_have_order_number_lesson_id_and_url
-    r = Reading.new()
+    r = Reading.new(order_number: " ", lesson_id: " ", url: " ")
     refute r.save
   end
 
-  # def test_08_validate_reading_url_format
-  #   r2 = Reading.new(url: "any_old_text_is_fine")
-  #   refute r2.save
-  #   r3 = Reading.new(url: "")
-  #   refute r3.save
-  # end
+  def test_url_should_be_valid
+    r = Reading.create(url: "www.sugarbeanfarm.com")
+    #assert_no_match(/\A(http|https):\/\/\S+/, r.url, "invalid url" )
+    assert_no_match(/\A(http|https):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(([0-9]{1,5})?\/.*)?\z/ix, r.url, "invalid url" )
+  end
 
   def test_truth
     assert true
