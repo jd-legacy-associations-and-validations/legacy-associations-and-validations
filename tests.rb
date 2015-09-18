@@ -101,7 +101,14 @@ class ApplicationTest < ActiveSupport::TestCase
 #   validates :email, presence: true, length: { maximum: 255 },
 #                     format: { with: VALID_EMAIL_REGEX }
 # end
+  def test_06_schools_have_courses_through_terms
 
+  end
+
+  def test_07_validate_lessons_have_names
+    l = Lesson.new()
+    refute l.save
+  end
 
   def test_truth
     assert true
