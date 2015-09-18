@@ -54,6 +54,38 @@ class ApplicationTest < ActiveSupport::TestCase
       use_course_feedback: [true,false].sample)
   end
 
+  def sample_instructor
+    User.create(
+      title: "Instructor",
+      first_name: (A..Z).sample,
+      middle_name: (A..Z).sample,
+      last_name: (A..Z).sample,
+      phone: "411",
+      office: "A3432",
+      office_hours: "8-5pm",
+      photo_url: "https://test.com",
+      description: "From a cool university",
+      admin: false,
+      email: "test@test.com",
+      instructor: true,
+      code: "A")
+  end
+
+  def sample_student
+    User.create(
+      title: "Student",
+      first_name: (A..Z).sample,
+      middle_name: (A..Z).sample,
+      last_name: (A..Z).sample,
+      phone: rand(9999999999).to_s,
+      photo_url: "https://test.com",
+      description: "Small town boy",
+      admin: false,
+      email: "test@test.com",
+      instructor: false,
+      code: rand(9999999999).to_s)
+  end
+
   def test_lesson_association_readings
     l = sample_lesson
     r1 = sample_reading
@@ -114,16 +146,13 @@ class ApplicationTest < ActiveSupport::TestCase
 
   def test_instrucors_association_course
     c = sample_course
-    l1 = sample_lesson
-    l2 = sample_lesson
-    r1 = sample_reading
-    r2 = sample_reading
-    l1.readings << r1
-    c.lessons << l1
-    assert c.reload.lessons.include?(l1)
-    refute c.lessons.include?(l2)
-    assert c.readings.include?(r1)
-    refute c.readings.include?(r2)
+    i1 = sample_instructor
+    i2 = sample_instructor
+    c.course_instructors << i1
+    assert c.reload.course_instructors.include?(i1)
+    refute c.reload.course_instructors.include?(i2)
+    assert_equal c, i1.course
+    refute_equal c, i2.course
   end
 
   def test_destroy_course_with_instructors
