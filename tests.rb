@@ -73,6 +73,36 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal before_assignment -1, Assignment.count
   end
 
+  def test_05_associate_lessons_and_preclass_assignments
+    l1 = Lesson.create(name: "L1")
+    a1 = Assignment.create(name: "A1")
+    #assignment has many lessons
+    #lesson belongs to assignments
+    a1.lessons << l1
+    assert l1.pre_class_assignment_id == a1.id
+    #assert_equal l1.pre_class_assignment_id, a1.id
+  end
+
+# def test_06_
+# def test_valid_reading_url
+#
+#
+#
+#     validates :order_number,  presence: true
+#               :lesson_id, presence: true
+#               :url, presence: true, format: { start_with?("http:", "https:")
+#
+#
+#               { with: } url
+#
+#     class User < ActiveRecord::Base
+#   validates :name,  presence: true, length: { maximum: 50 }
+#   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
+#   validates :email, presence: true, length: { maximum: 255 },
+#                     format: { with: VALID_EMAIL_REGEX }
+# end
+
+
   def test_truth
     assert true
   end
