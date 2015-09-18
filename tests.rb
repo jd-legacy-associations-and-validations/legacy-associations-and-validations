@@ -1,6 +1,7 @@
 # Basic test requires
 require 'minitest/autorun'
 require 'minitest/pride'
+require 'byebug'
 
 # Include both the migration and the app itself
 require './migration'
@@ -21,11 +22,36 @@ ApplicationMigration.migrate(:up)
 # Finally!  Let's test the thing.
 class ApplicationTest < Minitest::Test
 
-  # def test_01_associate_terms_and_schools
-  #   s1 = School.create("Skool")
-  #   t1 = Term.create("Tirm")
-  #   t.school_id = s.id
+  def test_01_associate_terms_and_schools
+    s1 = School.create(name: "S1")
+    s2 = School.create(name: "S2")
+    t1 = Term.create(name: "T1")
+    t2 = Term.create(name: "T2")
+    s1.terms << t1
+    s2.terms << t2
+
+    assert s1.reload.terms.include?(t1)
+    assert t1.reload.school == s1
+    # database_version = t2.find(t2.school_id)
+    # assert equal [t1], database_version.terms
+  end
+
+  # def test_term_association
+  #   describe School do
+  #     it "should have many terms " do
+  #       t = School.reflect_on_association(:terms)
+  #       t.macro.should == :has_many
+  #     end
+  #   end
   # end
+
+  def test_02_associate_courses_and_terms
+    t1 = Term.create(name: "T3")
+    c1 = Course.create(name: "C1")
+    t1.courses << c1
+    #assert t1.reload.courses.include?(c1)
+  end
+
 
   def test_truth
     assert true
