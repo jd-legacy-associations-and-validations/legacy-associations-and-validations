@@ -102,13 +102,30 @@ class ApplicationTest < ActiveSupport::TestCase
 #                     format: { with: VALID_EMAIL_REGEX }
 # end
   def test_06_schools_have_courses_through_terms
-
+    c1 = Course.create(name: "C1")
+    t1 = Term.create(name: "T1")
+    s1 = School.create(name: "S1")
+    t1.courses << c1
+    s1.terms << t1
+    assert s1.courses.include?(c1)
   end
 
   def test_07_validate_lessons_have_names
     l = Lesson.new()
     refute l.save
   end
+
+  def test_07_validate_readings_have_order_number_lesson_id_and_url
+    r = Reading.new()
+    refute r.save
+  end
+
+  # def test_08_validate_reading_url_format
+  #   r2 = Reading.new(url: "any_old_text_is_fine")
+  #   refute r2.save
+  #   r3 = Reading.new(url: "")
+  #   refute r3.save
+  # end
 
   def test_truth
     assert true
