@@ -1,7 +1,7 @@
 class CourseStudent < ActiveRecord::Base
   belongs_to :course
 
-  scope :approved, -> { where(approved: true) }
+  scope :approved,   -> { where(approved: true) }
   scope :unapproved, -> { where(approved: false) }
 
   delegate :code_and_name, :color, to: :course, prefix: true
