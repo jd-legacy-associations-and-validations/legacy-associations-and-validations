@@ -1,4 +1,5 @@
 class CourseInstructor < ActiveRecord::Base
-  has_and_belongs_to_many :courses
+  belongs_to :course
+  belongs_to :instructor, -> { where instructor: true }, class_name: 'User'
 
 end

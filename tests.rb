@@ -2,6 +2,7 @@
 require 'minitest/autorun'
 require 'minitest/pride'
 require 'pry'
+require 'faker'
 
 # Include both the migration and the app itself
 require './migration'
@@ -12,6 +13,8 @@ ActiveRecord::Base.establish_connection(
   adapter:  'sqlite3',
   database: 'test.sqlite3'
 )
+ActiveRecord::Migration.verbose = false
+ActiveSupport::TestCase.test_order = :random
 
 # Gotta run migrations before we can run tests.  Down will fail the first time,
 # so we wrap it in a begin/rescue.
@@ -25,25 +28,25 @@ class ApplicationTest < ActiveSupport::TestCase
   def sample_lesson
     Lesson.create(
       name: "Test Lesson " << rand(1000).to_s,
-      description: "Some description",
+      description: Faker::Company.catch_phrase,
       outline: "1.2.3",
-      lead_in_question: "Meaning of life",
+      lead_in_question: Faker::Company.catch_phrase << "?",
       slide_html: "<br/>")
   end
 
   def sample_reading
     Reading.create(
-      caption: "The Caption",
-      url: "https://example.com",
+      caption: Faker::Book.title,
+      url: Faker::Internet.url,
       order_number: rand(100),
       before_lesson: [true,false].sample)
   end
 
   def sample_course
     Course.create(
-      name: "Test Course",
+      name: Faker::Company.catch_phrase,
       course_code: "TST101",
-      color: ["Black","Red","Blue","Yellow"].sample,
+      color: Faker::Commerce.color,
       period: rand(10),
       description: "Beuller?",
       public: [true, false].sample,
@@ -57,33 +60,33 @@ class ApplicationTest < ActiveSupport::TestCase
   def sample_instructor
     User.create(
       title: "Instructor",
-      first_name: (A..Z).sample,
-      middle_name: (A..Z).sample,
-      last_name: (A..Z).sample,
-      phone: "411",
-      office: "A3432",
+      first_name: Faker::Name.first_name,
+      middle_name: Faker::Name.first_name,
+      last_name: Faker::Name.last_name,
+      phone: rand(9999999999),
+      office: Faker::Address.postcode,
       office_hours: "8-5pm",
-      photo_url: "https://test.com",
-      description: "From a cool university",
+      photo_url: Faker::Avatar.image,
+      description: Faker::Lorem.sentence,
       admin: false,
-      email: "test@test.com",
+      email: Faker::Internet.safe_email,
       instructor: true,
-      code: "A")
+      code: Faker::Code.ean)
   end
 
   def sample_student
     User.create(
       title: "Student",
-      first_name: (A..Z).sample,
-      middle_name: (A..Z).sample,
-      last_name: (A..Z).sample,
-      phone: rand(9999999999).to_s,
-      photo_url: "https://test.com",
-      description: "Small town boy",
+      first_name: Faker::Name.first_name,
+      middle_name: Faker::Name.first_name,
+      last_name: Faker::Name.last_name,
+      phone: rand(9999999999),
+      photo_url: Faker::Avatar.image,
+      description: Faker::Lorem.sentence,
       admin: false,
-      email: "test@test.com",
+      email: Faker::Internet.safe_email,
       instructor: false,
-      code: rand(9999999999).to_s)
+      code: Faker::Code.ean)
   end
 
   def test_lesson_association_readings
@@ -144,32 +147,59 @@ class ApplicationTest < ActiveSupport::TestCase
     refute r2.destroyed?
   end
 
-  def test_instrucors_association_course
+  def test_instructors_association_course
     c = sample_course
-    i1 = sample_instructor
-    i2 = sample_instructor
-    c.course_instructors << i1
-    assert c.reload.course_instructors.include?(i1)
-    refute c.reload.course_instructors.include?(i2)
-    assert_equal c, i1.course
-    refute_equal c, i2.course
+    u1 = sample_instructor
+    u2 = sample_instructor
+    ci1 = CourseInstructor.create(course_id: nil, instructor_id: u1.id, primary: true)
+    c.course_instructors << ci1
+    c.reload
+    assert c.course_instructors.include?(ci1)
   end
 
   def test_destroy_course_with_instructors
-    l1, l2 = nil
-    c = sample_course
-    r1 = sample_reading
-    r2 = sample_reading
-    assert_difference 'Lesson.count', 2 do
-      l1 = sample_lesson
-      l2 = sample_lesson
+    c1 = sample_course
+    c2 = sample_course
+    u1 = sample_instructor
+    u2 = sample_instructor
+    u3 = sample_instructor
+    ci1, ci2, ci3 = nil
+    assert_difference 'CourseInstructor.count', 3 do
+      ci1 = CourseInstructor.create(course_id: c1.id, instructor_id: u1.id, primary: true)
+      ci2 = CourseInstructor.create(course_id: c1.id, instructor_id: u2.id, primary: false)
+      ci3 = CourseInstructor.create(course_id: c2.id, instructor_id: u3.id, primary: true)
     end
-    l1.readings << r1
-    c.lessons << l1
-    assert_difference 'Lesson.count', -1 do
-      c.destroy
+    c1.course_instructors << ci1
+    c1.course_instructors << ci2
+    c2.course_instructors << ci3
+    assert c1.course_instructors.include?(ci1)
+    assert c1.course_instructors.include?(ci2)
+    assert c2.course_instructors.include?(ci3)
+    c1.destroy
+    assert c1.destroyed?
+    assert ci1.destroyed?
+    refute u1.destroyed?
+    assert ci2.destroyed?
+    refute u2.destroyed?
+    refute ci3.destroyed?
+  end
+
+  def test_destroy_course_with_students
+    c1 = sample_course
+    c2 = sample_course
+    u1 = sample_student
+    cs1 = nil
+    assert_difference 'CourseStudent.count', 1 do
+      cs1 = CourseStudent.create(course_id: c1.id, student_id: u1.id)
     end
-    assert c.destroyed?
+    assert c1.course_students.include?(cs1)
+    refute c2.course_students.include?(cs1)
+    c1.destroy
+    refute c1.destroyed?
+    refute cs1.destroyed?
+    refute u1.destroyed?
+    c2.destroy
+    assert c2.destroyed?
   end
 
 end

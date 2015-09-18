@@ -1,4 +1,6 @@
 class CourseStudent < ActiveRecord::Base
+  belongs_to :course
+  belongs_to :student, -> { where instructor: false }, class_name: 'User'
 
   scope :approved, -> { where(approved: true) }
   scope :unapproved, -> { where(approved: false) }
