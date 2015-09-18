@@ -89,6 +89,18 @@ class ApplicationTest < ActiveSupport::TestCase
       code: Faker::Code.ean)
   end
 
+  def sample_assignment
+    Assignment.create(
+      name: Faker::Company.catch_phrase,
+      active_at: Faker::Date.forward,
+      due_at: Faker::Date.forward,
+      grades_released: [true, false].sample,
+      students_can_submit: [true, false].sample,
+      percent_of_grade: (1..100.00).to_a.sample,
+      maximum_grade: rand(100.00))
+  end
+
+
   def test_lesson_association_readings
     l = sample_lesson
     r1 = sample_reading
@@ -200,6 +212,15 @@ class ApplicationTest < ActiveSupport::TestCase
     refute u1.destroyed?
     c2.destroy
     assert c2.destroyed?
+  end
+
+  def test_lesson_association_in_class_assignments
+    l = sample_lesson
+    a = sample_assignment
+    l.in_class_assignments << a
+    binding.pry
+    assert l.in_class_assignments.include?(a)
+    assert_equal a.lesson, l
   end
 
 end
