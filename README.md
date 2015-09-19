@@ -14,8 +14,8 @@ Source: https://github.com/tiyd-rails-2015-08/legacy_associations_and_validation
 - [x] Validate that the User's email is unique.
 - [x] Validate that the User's email has the appropriate form for an e-mail address. Use a regular expression.
 - [x] Validate that the User's photo_url must start with http:// or https://. Use a regular expression.
-- [ ] Validate that Assignments have a course_id, name, and percent_of_grade.
-- [ ] Validate that the Assignment name is unique within a given course_id.
+- [x] Validate that Assignments have a course_id, name, and percent_of_grade.
+- [x] Validate that the Assignment name is unique within a given course_id.
 
 ## Hard Mode
 - [ ] Associate CourseStudents with students (who happen to be users)
