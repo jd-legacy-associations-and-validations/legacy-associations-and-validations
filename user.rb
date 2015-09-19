@@ -1,9 +1,41 @@
 class User < ActiveRecord::Base
+  has_many :course_instructors, foreign_key: :instructor_id
+  has_many :course_students, foreign_key: :student_id
+  validates :first_name, presence: true
+  validates :last_name, presence: true
+  validates :email, presence: true,
+                    uniqueness: true,
+                    format: {
+                      with: /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i,
+                      message: "Not a valid email address",
+                      on: :create
+                    }
+  validates :photo_url, allow_nil: true, format: {
+                          with: /\A(http|https):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(([0-9]{1,5})?\/.*)?\z/ix,
+                          message: "Not a valid URL"
+                        }
+
 
   scope :want_to_be_instructors, -> { where(wants_to_be_instructor: true) }
   scope :instructors_for_school_id, ->(school_id) { where(school_id: school_id, instructor: true) }
 
   default_scope { order('last_name, first_name') }
+
+  # /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i
+  # source: http://emailregex.com/
+  # def valid_email?
+  #   if expiration_date.present? && expiration_date < Date.today
+  #     errors.add(:expiration_date, "can't be in the past")
+  #   end
+  # end
+
+  # _^(?:(?:https?|ftp)://)(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\x{00a1}-\x{ffff}0-9]+-?)*[a-z\x{00a1}-\x{ffff}0-9]+)(?:\.(?:[a-z\x{00a1}-\x{ffff}0-9]+-?)*[a-z\x{00a1}-\x{ffff}0-9]+)*(?:\.(?:[a-z\x{00a1}-\x{ffff}]{2,})))(?::\d{2,5})?(?:/[^\s]*)?$_iuS
+  # source: https://mathiasbynens.be/demo/url-regex
+  # def valid_url?
+  #   if expiration_date.present? && expiration_date < Date.today
+  #     errors.add(:expiration_date, "can't be in the past")
+  #   end
+  # end
 
   def full_name
     "#{title + " " if title}#{first_name} #{padded_middle_initial}#{last_name}"
