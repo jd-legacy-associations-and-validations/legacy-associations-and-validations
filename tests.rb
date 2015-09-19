@@ -29,8 +29,8 @@ class ApplicationTest < ActiveSupport::TestCase
   def test_01_associate_terms_and_schools
     s1 = School.create(name: "S1")
     s2 = School.create(name: "S2")
-    t1 = Term.create(name: "T1")
-    t2 = Term.create(name: "T2")
+    t1 = Term.create(name: "T1", school_id: 78, starts_on: Faker::Date.forward, ends_on: Faker::Date.forward)
+    t2 = Term.create(name: "T2", school_id: 46, starts_on: Faker::Date.forward, ends_on: Faker::Date.forward)
     s1.terms << t1
     s2.terms << t2
     assert s1.reload.terms.include?(t1)
@@ -38,10 +38,13 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   def test_02_associate_courses_and_terms
-    t1 = Term.create(name: "T3")
-    c1 = Course.create(name: "C1", course_code: "abc321")
+    s1 = School.create(name: "S1")
+    t1 = Term.create(name: "T3", school_id: 34, starts_on: Faker::Date.forward, ends_on: Faker::Date.forward)
+    c1 = Course.create(name: "Z1", course_code: "abc321")
     t1.courses << c1
-    assert c1.reload.term == t1
+    s1.terms << t1
+    s1.terms << t1
+    assert c1.reload.school == s1
     assert t1.courses.include?(c1)
   end
 
