@@ -138,25 +138,18 @@ class ApplicationTest < ActiveSupport::TestCase
     refute c.lessons.include?(l2)
     assert c.readings.include?(r1)
     refute c.readings.include?(r2)
-    assert l1.course == c
-    refute l2.course == c
   end
 
   def test_destroy_course_with_lessons
     c = sample_course
     l1 = sample_lesson
     l2 = sample_lesson
-    r1 = sample_reading
-    r2 = sample_reading
-    l1.readings << r1
     c.lessons << l1
-    assert r1.lesson.course == c
+    assert c.lessons.include?(l1)
     c.destroy
     assert c.destroyed?
     assert l1.destroyed?
     refute l2.destroyed?
-    assert r1.destroyed?
-    refute r2.destroyed?
   end
 
   def test_instructors_association_course
@@ -217,10 +210,9 @@ class ApplicationTest < ActiveSupport::TestCase
   def test_lesson_association_in_class_assignments
     l = sample_lesson
     a = sample_assignment
-    l.in_class_assignments << a
-    binding.pry
-    assert l.in_class_assignments.include?(a)
-    assert_equal a.lesson, l
+    refute a.save
+    a.lessons << l
+    assert a.lessons.include?(l)
   end
 
 end

@@ -1,8 +1,9 @@
 class Lesson < ActiveRecord::Base
   delegate :code_and_name, to: :course, prefix: true
   has_many :readings, dependent: :destroy
-  has_many :assignments, foreign_key: :in_class_assignments
-  belongs_to :course
+  belongs_to :assignment
+  belongs_to :lesson
+
 
   scope :roots, -> { where("parent_lesson_id IS NULL") }
   scope :without_day_assignments, -> { where("day_assignment_id IS NULL") }

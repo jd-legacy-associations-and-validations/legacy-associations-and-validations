@@ -7,7 +7,8 @@ class User < ActiveRecord::Base
                     uniqueness: true,
                     format: {
                       with: /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i,
-                      message: "Not a valid email address"
+                      message: "Not a valid email address",
+                      on: :create
                     }
   validates :photo_url, format: {
                           with: /\A(http|https):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(([0-9]{1,5})?\/.*)?\z/ix,
