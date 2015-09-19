@@ -137,6 +137,18 @@ class ApplicationTest < ActiveSupport::TestCase
     refute c.save
   end
 
+  def test_10_course_code_unique_within_given_term_id
+    assert Course.create(name: "C7", course_code: 33)
+    new_course = Course.new(name: "C8", course_code: 33)
+    refute new_course.save
+  end
+
+  def test_11_valid_course_code
+    assert Course.create(name: "C7", course_code: 33)
+    new_course = Course.new(name: "C8", course_code: 33)
+    refute new_course.save
+  end
+
   def test_truth
     assert true
   end
