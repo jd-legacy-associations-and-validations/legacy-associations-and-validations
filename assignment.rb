@@ -3,7 +3,6 @@ class Assignment < ActiveRecord::Base
   has_many :lessons, foreign_key: :in_class_assignments
   has_many :lessons, foreign_key: :pre_class_assignments
 
-
   validates :course_id, presence: true
   validates :percent_of_grade, presence: true
   validates :name,  presence: true,

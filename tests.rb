@@ -215,4 +215,88 @@ class ApplicationTest < ActiveSupport::TestCase
     assert a.lessons.include?(l)
   end
 
+  def test_validate_school_name
+    s = School.new()
+    refute s.save
+  end
+
+  def test_validate_term_dates_and_school
+    t = Term.new()
+    refute t.save
+    t.name = "Test"
+    refute t.save
+    t.starts_on = Faker::Date.forward
+    refute t.save
+    t.ends_on = Faker::Date.forward
+    refute t.save
+    s = School.create(name: "Test")
+    t.school_id = s.id
+    assert t.save
+  end
+
+  def test_validate_user_names_and_email
+    u = User.new
+    refute u.save
+    u.first_name = "David"
+    refute u.save
+    u.last_name = "Test"
+    refute u.save
+    u.email = "test#{rand(99999999999999)}@test.com"
+    assert u.save
+  end
+
+  def test_validate_unique_email
+    u1 = User.create(first_name: "Test", last_name: "Test", email: "test@test.com")
+    u2 = User.create(first_name: "Test2", last_name: "Test2", email: "test@test.com")
+    refute u2.save
+  end
+
+  def test_validate_valid_email
+    u1 = User.new(first_name: "Test", last_name: "Test", email: "test.com")
+    u2 = User.new(first_name: "Test2", last_name: "Test2", email: "test#{rand(99999999999999)}@test.com")
+    refute u1.save
+    assert u2.save
+  end
+
+  def test_validate_valid_photo_url
+    u1 = User.new(first_name: "Test", last_name: "Test", email: "test#{rand(99999999999999)}.com", photo_url: "notavalidurl.com")
+    u2 = User.new(first_name: "Test2", last_name: "Test2", email: "test#{rand(99999999999999)}@test.com", photo_url: "https://validurl.com")
+    u3 = User.new(first_name: "Test2", last_name: "Test2", email: "test#{rand(99999999999999)}@test.com", photo_url: "http://validurl.com")
+    refute u1.save
+    assert u2.save
+    assert u3.save
+  end
+
+  def test_valdiate_assignment_validations
+    a = Assignment.new
+    refute a.save
+    a.name = "Something#{rand(99999999999999)}"
+    refute a.save
+    a.percent_of_grade = rand(100)
+    refute a.save
+    c = sample_course
+    c.assignments << a
+    assert a.save
+  end
+
+  def test_validate_unique_assignment_name_in_course
+    a1 = Assignment.new(name: "Something#{rand(99999999999999)}", percent_of_grade: rand(100))
+    a2 = Assignment.new(name: "Duplicate", percent_of_grade: rand(100))
+    a3 = Assignment.new(name: "Duplicate", percent_of_grade: rand(100))
+    a4 = Assignment.new(name: "Duplicate", percent_of_grade: rand(100))
+    c1 = sample_course
+    c2 = sample_course
+    c1.assignments << a1
+    c1.assignments << a2
+    assert a1.save
+    assert a2.save
+    c1.assignments << a3
+    c2.assignments << a4
+    refute a3.save
+    assert a4.save
+  end
+
+
+
+
 end

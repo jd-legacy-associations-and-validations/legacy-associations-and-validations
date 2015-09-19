@@ -10,7 +10,7 @@ class User < ActiveRecord::Base
                       message: "Not a valid email address",
                       on: :create
                     }
-  validates :photo_url, format: {
+  validates :photo_url, allow_nil: true, format: {
                           with: /\A(http|https):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(([0-9]{1,5})?\/.*)?\z/ix,
                           message: "Not a valid URL"
                         }
