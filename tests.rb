@@ -25,6 +25,8 @@ ApplicationMigration.migrate(:up)
 # Finally!  Let's test the thing.
 class ApplicationTest < ActiveSupport::TestCase
 
+
+
   def test_01_associate_terms_and_schools
     s1 = School.create(name: "S1")
     s2 = School.create(name: "S2")
@@ -49,24 +51,25 @@ class ApplicationTest < ActiveSupport::TestCase
 
   def test_02_associate_courses_and_terms
     t1 = Term.create(name: "T3")
-    c1 = Course.create(name: "C1")
+    c1 = Course.create(name: "C1", course_code: 56)
     t1.courses << c1
     assert c1.reload.term == t1
     assert t1.courses.include?(c1)
   end
 
   def test_03_associate_students_and_courses
-    c1 = Course.create(name: "C1")
+    c4 = Course.create(name: "C4")
     student1 = CourseStudent.create(student_id: 1)
-    c1.course_students << student1
-    assert student1.reload.course == c1
+    c4.course_students << student1
+    assert c4.course_students.include?(student1)
+    assert student1.reload.course_id == c4.id
     before = CourseStudent.count
-    c1.destroy
+    c4.destroy
     assert_equal before, CourseStudent.count
   end
 
   def test_04_associate_assignments_and_courses
-    c1 = Course.create(name: "C1")
+    c1 = Course.create(name: "C1", course_code: 89)
     a1 = Assignment.create(name: "A1")
     c1.assignments << a1
     assert c1.reload.assignments.include?(a1)
@@ -123,10 +126,15 @@ class ApplicationTest < ActiveSupport::TestCase
     refute r.save
   end
 
-  def test_url_should_be_valid
+  def test_08_url_should_be_valid
     r = Reading.create(url: "www.sugarbeanfarm.com")
     #assert_no_match(/\A(http|https):\/\/\S+/, r.url, "invalid url" )
     assert_no_match(/\A(http|https):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(([0-9]{1,5})?\/.*)?\z/ix, r.url, "invalid url" )
+  end
+
+  def test_09_course_code_and_name
+    c = Course.create(name: " ")
+    refute c.save
   end
 
   def test_truth
