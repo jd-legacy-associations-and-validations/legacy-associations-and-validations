@@ -1,20 +1,17 @@
 class Course < ActiveRecord::Base
+  belongs_to :term
   has_many :assignments, dependent: :destroy
   has_many :course_instructors, dependent: :destroy
   has_many :course_students, dependent: :restrict_with_error
   has_many :students, through: :course_students
   has_many :lessons, dependent: :destroy
   has_many :readings, through: :lessons
-
-  belongs_to :term
   has_many :course_students, dependent: :restrict_with_error
   has_many :assignments, dependent: :destroy
   validates :name, presence: true
   validates :course_code, presence: true,
                           uniqueness: { scope: :term_id, message: "Duplicate assignment name within term" },
                           format: { with: /\A[a-zA-Z]{3}[0-9]{3}\z/, on: :create }
-
-  validates :name, presence: true
 
 
   default_scope { order("courses.term_id DESC, courses.course_code, courses.id DESC") }

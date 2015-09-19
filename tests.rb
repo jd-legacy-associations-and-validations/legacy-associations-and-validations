@@ -26,6 +26,83 @@ ApplicationMigration.migrate(:up)
 # Finally!  Let's test the thing.
 class ApplicationTest < ActiveSupport::TestCase
 
+  def sample_lesson
+    Lesson.create(
+      name: "Test Lesson " << rand(1000).to_s,
+      description: Faker::Company.catch_phrase,
+      outline: "1.2.3",
+      lead_in_question: Faker::Company.catch_phrase << "?",
+      slide_html: "<br/>")
+  end
+
+  def sample_reading
+    Reading.create(
+      caption: Faker::Book.title,
+      url: Faker::Internet.url,
+      order_number: rand(100),
+      before_lesson: [true,false].sample)
+  end
+
+  def sample_course
+
+
+    Course.create(
+      name: Faker::Company.catch_phrase,
+      course_code: (0...3).map { (65 + rand(26)).chr }.join + (0...3).map { rand(0..9) }.join,
+      color: Faker::Commerce.color,
+      period: rand(10),
+      description: "Beuller?",
+      public: [true, false].sample,
+      grading_method: "Assignment",
+      use_time_cards: [true,false].sample,
+      use_reveal_slides: [true,false].sample,
+      use_meeting_video: [true,false].sample,
+      use_course_feedback: [true,false].sample)
+  end
+
+  def sample_instructor
+    User.create(
+      title: "Instructor",
+      first_name: Faker::Name.first_name,
+      middle_name: Faker::Name.first_name,
+      last_name: Faker::Name.last_name,
+      phone: rand(9999999999),
+      office: Faker::Address.postcode,
+      office_hours: "8-5pm",
+      photo_url: Faker::Avatar.image,
+      description: Faker::Lorem.sentence,
+      admin: false,
+      email: Faker::Internet.safe_email,
+      instructor: true,
+      code: Faker::Code.ean)
+  end
+
+  def sample_student
+    User.create(
+      title: "Student",
+      first_name: Faker::Name.first_name,
+      middle_name: Faker::Name.first_name,
+      last_name: Faker::Name.last_name,
+      phone: rand(9999999999),
+      photo_url: Faker::Avatar.image,
+      description: Faker::Lorem.sentence,
+      admin: false,
+      email: Faker::Internet.safe_email,
+      instructor: false,
+      code: Faker::Code.ean)
+  end
+
+  def sample_assignment
+    Assignment.create(
+      name: Faker::Company.catch_phrase,
+      active_at: Faker::Date.forward,
+      due_at: Faker::Date.forward,
+      grades_released: [true, false].sample,
+      students_can_submit: [true, false].sample,
+      percent_of_grade: (1..100.00).to_a.sample,
+      maximum_grade: rand(100.00))
+  end
+
   def test_01_associate_terms_and_schools
     s1 = School.create(name: "S1")
     s2 = School.create(name: "S2")
@@ -118,81 +195,6 @@ class ApplicationTest < ActiveSupport::TestCase
     refute c1.save
   end
 
-  def sample_lesson
-    Lesson.create(
-      name: "Test Lesson " << rand(1000).to_s,
-      description: Faker::Company.catch_phrase,
-      outline: "1.2.3",
-      lead_in_question: Faker::Company.catch_phrase << "?",
-      slide_html: "<br/>")
-  end
-
-  def sample_reading
-    Reading.create(
-      caption: Faker::Book.title,
-      url: Faker::Internet.url,
-      order_number: rand(100),
-      before_lesson: [true,false].sample)
-  end
-
-  def sample_course
-    Course.create(
-      name: Faker::Company.catch_phrase,
-      course_code: "TST101",
-      color: Faker::Commerce.color,
-      period: rand(10),
-      description: "Beuller?",
-      public: [true, false].sample,
-      grading_method: "Assignment",
-      use_time_cards: [true,false].sample,
-      use_reveal_slides: [true,false].sample,
-      use_meeting_video: [true,false].sample,
-      use_course_feedback: [true,false].sample)
-  end
-
-  def sample_instructor
-    User.create(
-      title: "Instructor",
-      first_name: Faker::Name.first_name,
-      middle_name: Faker::Name.first_name,
-      last_name: Faker::Name.last_name,
-      phone: rand(9999999999),
-      office: Faker::Address.postcode,
-      office_hours: "8-5pm",
-      photo_url: Faker::Avatar.image,
-      description: Faker::Lorem.sentence,
-      admin: false,
-      email: Faker::Internet.safe_email,
-      instructor: true,
-      code: Faker::Code.ean)
-  end
-
-  def sample_student
-    User.create(
-      title: "Student",
-      first_name: Faker::Name.first_name,
-      middle_name: Faker::Name.first_name,
-      last_name: Faker::Name.last_name,
-      phone: rand(9999999999),
-      photo_url: Faker::Avatar.image,
-      description: Faker::Lorem.sentence,
-      admin: false,
-      email: Faker::Internet.safe_email,
-      instructor: false,
-      code: Faker::Code.ean)
-  end
-
-  def sample_assignment
-    Assignment.create(
-      name: Faker::Company.catch_phrase,
-      active_at: Faker::Date.forward,
-      due_at: Faker::Date.forward,
-      grades_released: [true, false].sample,
-      students_can_submit: [true, false].sample,
-      percent_of_grade: (1..100.00).to_a.sample,
-      maximum_grade: rand(100.00))
-  end
-
   def test_lesson_association_readings
     l = sample_lesson
     r1 = sample_reading
@@ -207,12 +209,12 @@ class ApplicationTest < ActiveSupport::TestCase
   def test_destroy_lesson_with_readings
     r1, r2 = nil
     l = sample_lesson
-    assert_difference 'Reading.count', 2 do
-      r1 = sample_reading
-      r2 = sample_reading
+    r1 = sample_reading
+    r2 = sample_reading
+    assert_difference 'Reading.count', 1 do
+      l.readings << r1
     end
-    l.readings << r1
-    assert l.reload.readings.include?(r1)
+    assert l.readings.include?(r1)
     assert_difference 'Reading.count', -1 do
       l.destroy
     end
@@ -289,6 +291,7 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_difference 'CourseStudent.count', 1 do
       cs1 = CourseStudent.create(course_id: c1.id, student_id: u1.id)
     end
+    c1.course_students << cs1
     assert c1.course_students.include?(cs1)
     refute c2.course_students.include?(cs1)
     c1.destroy
