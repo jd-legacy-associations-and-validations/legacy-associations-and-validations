@@ -18,9 +18,9 @@ Source: https://github.com/tiyd-rails-2015-08/legacy_associations_and_validation
 - [x] Validate that the Assignment name is unique within a given course_id.
 
 ## Hard Mode
-- [ ] Associate CourseStudents with students (who happen to be users)
-- [ ] Associate CourseStudents with assignment_grades (both directions)
-- [ ] Set up a Course to have many students through the course's course_students.
+- [x] Associate CourseStudents with students (who happen to be users)
+- [x] Associate CourseStudents with assignment_grades (both directions)
+- [x] Set up a Course to have many students through the course's course_students.
 - [ ] Associate a Course with its ONE primary_instructor. This primary instructor is the one who is referenced by a course_instructor which has its primary flag set to true.
 
 ## Nightmare Mode
