@@ -51,7 +51,7 @@ class ApplicationTest < ActiveSupport::TestCase
 
   def test_02_associate_courses_and_terms
     t1 = Term.create(name: "T3")
-    c1 = Course.create(name: "C1", course_code: 56)
+    c1 = Course.create(name: "C1", course_code: "abc321")
     t1.courses << c1
     assert c1.reload.term == t1
     assert t1.courses.include?(c1)
@@ -69,7 +69,7 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   def test_04_associate_assignments_and_courses
-    c1 = Course.create(name: "C1", course_code: 89)
+    c1 = Course.create(name: "C1", course_code: "xyz123")
     a1 = Assignment.create(name: "A1")
     c1.assignments << a1
     assert c1.reload.assignments.include?(a1)
@@ -108,7 +108,7 @@ class ApplicationTest < ActiveSupport::TestCase
 #                     format: { with: VALID_EMAIL_REGEX }
 # end
   def test_06_schools_have_courses_through_terms
-    c1 = Course.create(name: "C1")
+    c1 = Course.create(name: "bcd432")
     t1 = Term.create(name: "T1")
     s1 = School.create(name: "S1")
     t1.courses << c1
@@ -138,19 +138,20 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   def test_10_course_code_unique_within_given_term_id
-    assert Course.create(name: "C7", course_code: 33)
+    assert Course.create(name: "C7", course_code: "dfe765")
     new_course = Course.new(name: "C8", course_code: 33)
     refute new_course.save
   end
 
   def test_11_valid_course_code
-    assert Course.create(name: "C7", course_code: 33)
+    assert Course.create(name: "C7", course_code: "cde543")
     new_course = Course.new(name: "C8", course_code: 33)
     refute new_course.save
   end
 
-  def test_truth
-    assert true
+  def test_12_
+    valid_code = "/\A[a-zA-Z]{3},[0-9]{3}\z"
+    c1 = Course.new(name: "C9", course_code: valid_code)
+    refute c1.save
   end
-
 end
