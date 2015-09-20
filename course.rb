@@ -1,7 +1,8 @@
 class Course < ActiveRecord::Base
   belongs_to :term
-  delegate :school, to: :term 
+  delegate :school, to: :term
   has_many :assignments, dependent: :destroy
+  has_one :primary_instructor, -> { where primary: true }, class_name: :course_instructor
   has_many :course_instructors, dependent: :destroy
   has_many :course_students, dependent: :restrict_with_error
   has_many :students, through: :course_students
