@@ -44,8 +44,6 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   def sample_course
-
-
     Course.create(
       name: Faker::Company.catch_phrase,
       course_code: (0...3).map { (65 + rand(26)).chr }.join + (0...3).map { rand(0..9) }.join,
