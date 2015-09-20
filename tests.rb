@@ -390,4 +390,9 @@ class ApplicationTest < ActiveSupport::TestCase
     refute a3.save
     assert a4.save
   end
+
+  def test_primary_instructor
+
+  end
+
 end
